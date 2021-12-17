@@ -1,0 +1,1 @@
+# SK-GG-type-communicator
