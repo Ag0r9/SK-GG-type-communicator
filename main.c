@@ -14,7 +14,7 @@
 int NO_HEADER_NO_MESSAGE = 1;
 int HEADER = 2;
 int MESSAGE = 3;
-int NB_CLIENTS = 150;
+int NB_CLIENTS = 0;
 
 void send_message(char* header, char* content, int fd) {
   char response[strlen(header)+strlen(content)+3];
