@@ -351,8 +351,11 @@ void* handle_connection(void *arg) {
       if (buffer[0] == '\t') {
         printf("Operacyjka: %s Wiadomosc: %s\n", operation, content);
         take_action(operation, content, passed_desc);
+	bzero(operation, MAX_MESSAGE_LENGTH);
+	bzero(content, MAX_MESSAGE_LENGTH);
+	state = NO_HEADER_NO_MESSAGE;
+      } else {strncat(content, buffer, 1);
       }
-      strncat(content, buffer, 1);
     }
 
   }
