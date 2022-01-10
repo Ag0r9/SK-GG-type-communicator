@@ -15,14 +15,10 @@ class WelcomePage(QDialog):
         self.signup.clicked.connect(self.gotoregistration)
 
     def gotologin(self):
-        login = LoginPage()
-        widget.addWidget(login)
-        widget.setCurrentIndex(widget.currentIndex()+1)
+        widget.setCurrentIndex(1)
 
     def gotoregistration(self):
-        registration = RegistrationPage()
-        widget.addWidget(registration)
-        widget.setCurrentIndex(widget.currentIndex()+1)
+        widget.setCurrentIndex(2)
 
 
 class LoginPage(QDialog):
@@ -53,8 +49,6 @@ class RegistrationPage(QDialog):
         self.signup.clicked.connect(self.signup_function)
 
     def signup_function(self):
-        global msg
-        global head
         user = self.username_field.text()
         password = self.password_field.text()
         password_confirm = self.password_confirm_field.text()
@@ -70,7 +64,7 @@ class RegistrationPage(QDialog):
 class MenuPage(QDialog):
     def __init__(self):
         super(MenuPage, self).__init__()
-        loadUi('UI/menu.ui')
+        loadUi('UI/menu_page.ui', self)
 
 
 if __name__ == '__main__':
@@ -97,15 +91,11 @@ if __name__ == '__main__':
     def interpret_message():
         global GLOBAL_HEADER
         global GLOBAL_MSG
-        print("Odczytaned: ", GLOBAL_HEADER, GLOBAL_MSG)
+        print("Odczytaned:", GLOBAL_HEADER, GLOBAL_MSG)
         if GLOBAL_HEADER == 'SIGNUP_R SUCCESS':
-            current_widget = widget.currentWidget()
-            widget.setCurrentIndex(widget.currentIndex() - 1)
-            widget.removeWidget(current_widget)
+            widget.setCurrentIndex(0)
         elif GLOBAL_HEADER == 'LOGIN_R SUCCESS':
-            menu = MenuPage()
-            widget.addWidget(menu)
-            widget.setCurrentIndex(widget.currentIndex() + 1)
+            widget.setCurrentIndex(3)
 
     def parser(znak):
         global GLOBAL_STATE
@@ -148,9 +138,11 @@ if __name__ == '__main__':
 
     Receiver()
     app = QApplication(sys.argv)
-    welcome = WelcomePage()
     widget = QtWidgets.QStackedWidget()
-    widget.addWidget(welcome)
+    widget.addWidget(WelcomePage())  # 0
+    widget.addWidget(LoginPage())  # 1
+    widget.addWidget(RegistrationPage())  # 2
+    widget.addWidget(MenuPage())  # 3
     widget.setFixedHeight(800)
     widget.setFixedWidth(1200)
     widget.show()
