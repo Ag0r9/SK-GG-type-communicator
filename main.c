@@ -37,6 +37,29 @@ void send_message(char* header, char* content, int fd) {
   }
 }
 
+void reverse(char s[])
+ {
+     int i, j;
+     char c;
+
+     for (i = 0, j = strlen(s)-1; i<j; i++, j--) {
+         c = s[i];
+         s[i] = s[j];
+         s[j] = c;
+     }
+}
+
+ void itoa(int n, char s[])
+ {
+     int i;
+     i = 0;
+     do {
+         s[i++] = (n%10)+'0';
+     } while ((n /= 10) > 0);
+     s[i] = '\0';
+     reverse(s);
+}
+
 int find_id(int response_socket) {
   unsigned int id;
   for (int i=0; i<NB_CLIENTS; ++i) {
@@ -249,13 +272,25 @@ if (!strcmp(operation, "FRIENDS_LIST")) {
   pthread_mutex_lock(&users_lock);
   client_id = find_id(response_socket);
 
-  char list[8192];
+char list[8192];
+strcpy(list, "");
+ char s[10];
   for(int i=0; i<NB_CLIENTS; ++i) {
     if ((Users[client_id].friends[i] == 1) && (client_id != i)) {
-      snprintf(list, sizeof(list), "[%d %d %s] ", Users[i].userid, Users[i].is_active, Users[i].username);
+      strcat(list, "[");
+      strcpy(s, "");
+      itoa(Users[i].userid, s);
+      strcat(list,  s);
+      strcpy(s, "");
+      itoa(Users[i].is_active, s);
+      strcat(list, " ");
+      strcat(list, s);
+      strcat(list, " ");
+      strcat(list, Users[i].username);
+      strcat(list, "] ");
     }
   }
-
+  printf("%s", list);
   pthread_mutex_lock(&Users[client_id].write_socket_lock);
   send_message("FRIENDS_LIST_R SUCCESS", list, response_socket); //blad??
   pthread_mutex_unlock(&Users[client_id].write_socket_lock);
