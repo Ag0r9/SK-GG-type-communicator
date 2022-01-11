@@ -119,6 +119,7 @@ if (!strcmp(operation, "SIGNUP")) {
     strcpy(Users[NB_CLIENTS].password, password);
     Users[NB_CLIENTS].friends[NB_CLIENTS] = 1;
     pthread_mutex_lock(&Users[NB_CLIENTS].write_socket_lock);
+printf("%d %s %s\n", Users[NB_CLIENTS].userid, Users[NB_CLIENTS].username, Users[NB_CLIENTS].password);
     send_message("SIGNUP_R SUCCESS", "SUCCESS", response_socket);
     pthread_mutex_unlock(&Users[NB_CLIENTS].write_socket_lock);
     pthread_mutex_unlock(&users_lock);
@@ -145,7 +146,9 @@ if (!strcmp(operation, "LOGIN")) {
       }
     }
     pthread_mutex_lock(&users_lock);
+    printf("%d\n", NB_CLIENTS);
     for(int i=0; i<NB_CLIENTS; ++i) {
+	    printf("%s %s\n", Users[i].username, username);
       if (!strcmp(Users[i].username, username)) {
         if (Users[i].is_active == 1) {
           pthread_mutex_lock(&Users[i].write_socket_lock);
@@ -159,6 +162,7 @@ if (!strcmp(operation, "LOGIN")) {
           Users[i].socket = response_socket;
           Users[i].is_active = 1;
           pthread_mutex_lock(&Users[i].write_socket_lock);
+printf("%s a %s d %s\n", Users[i].password, password, Users[i].username);
           send_message("LOGIN_R SUCCESS", "SUCCESS", response_socket);
           pthread_mutex_unlock(&Users[i].write_socket_lock);
           pthread_mutex_unlock(&users_lock);
@@ -174,7 +178,9 @@ if (!strcmp(operation, "LOGIN")) {
       }
     }
     int id = find_id(response_socket);
+    printf("%d\n", id);
     pthread_mutex_lock(&Users[id].write_socket_lock);
+printf("%s a %s d %s\n", Users[id].password, password, Users[id].username);
     send_message("LOGIN_R FAILED", "NO_SUCH_USER", response_socket);
     pthread_mutex_unlock(&Users[id].write_socket_lock);
     pthread_mutex_unlock(&users_lock);
