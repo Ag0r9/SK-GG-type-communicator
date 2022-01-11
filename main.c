@@ -37,8 +37,7 @@ void send_message(char* header, char* content, int fd) {
   }
 }
 
-void reverse(char s[])
- {
+void reverse(char s[]) {
      int i, j;
      char c;
 
@@ -49,8 +48,7 @@ void reverse(char s[])
      }
 }
 
- void itoa(int n, char s[])
- {
+void itoa(int n, char s[]) {
      int i;
      i = 0;
      do {
@@ -97,7 +95,9 @@ if (!strcmp(operation, "SIGNUP")) {
     return;
   } else {
     char username[50];
+    bzero(username, 50);
     char password[50];
+    bzero(password, 50);
     for (int i=0; i<strlen(message); ++i) {
       if (message[i]==32) {
         strncpy(username, message, i);
@@ -137,7 +137,9 @@ printf("%d %s %s\n", Users[NB_CLIENTS].userid, Users[NB_CLIENTS].username, Users
 if (!strcmp(operation, "LOGIN")) {
     printf("LOGOWANKO\n");
     char username[50];
+    bzero(username, 50);
     char password[50];
+    bzero(username, 50);
     for (int i=0; i<strlen(message); ++i) {
       if (message[i]==32) {
         strncpy(username, message, i);
