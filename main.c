@@ -281,8 +281,9 @@ if (!strcmp(operation, "FRIENDS_LIST")) {
   client_id = find_id(response_socket);
 
 char list[8192];
-strcpy(list, "");
- char s[10];
+bzero(list, 8192);
+char s[10];
+bzero(s, 10);
   for(int i=0; i<NB_CLIENTS; ++i) {
     if ((Users[client_id].friends[i] == 1) && (client_id != i)) {
       strcat(list, "[");
@@ -314,7 +315,9 @@ if (!strcmp(operation, "SEND_MESSAGE")) {
   printf("WYSYLANKO");
   int client_id = -1;
   char id_text[3];
+  bzero(id_text, 3);
   char text[1020];
+  bzero(text, 1020);
   pthread_mutex_lock(&users_lock);
   client_id = find_id(response_socket);
   for (int i=0; i<strlen(message); ++i) {
