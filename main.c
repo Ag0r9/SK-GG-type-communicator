@@ -250,8 +250,8 @@ if (!strcmp(operation, "FRIENDS_LIST")) {
   client_id = find_id(response_socket);
 
   char list[8192];
-  for(int i=0; i<100; ++i) {
-    if (Users[client_id].friends[i] == 1) {
+  for(int i=0; i<NB_CLIENTS; ++i) {
+    if ((Users[client_id].friends[i] == 1) && (client_id != i)) {
       snprintf(list, sizeof(list), "[%d %d %s] ", Users[i].userid, Users[i].is_active, Users[i].username);
     }
   }
