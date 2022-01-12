@@ -11,3 +11,12 @@ def string_to_list(string):
         else:
             friends[idx][1] = 'inactive'
     return friends
+
+
+def find_nick(friends, id_):
+    friend_nick = None
+    for friend in friends:
+        if friend[0] == id_:
+            friend_nick = friend[2]
+            break
+    return friend_nick
