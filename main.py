@@ -4,7 +4,7 @@ import threading
 from threading import Thread
 
 from PyQt5.uic import loadUi
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QDialog, QApplication, QMessageBox
 
 from utils import string_to_list, find_nick
@@ -96,7 +96,14 @@ class MenuPage(QDialog):
         self.send_message = send_message
 
     def friend_clicked(self):
-        self.friend_id = self.friendListWidget.currentItem().text().split()[-1]
+        try:
+            self.friend_id = self.friendListWidget.currentItem().text().split()[-1]
+        except:
+            self.friend_id = None
+            return
+        self.chatListWidget.clear()
+        for item in self.messagesDictionary[str(self.friend_id)]:
+            self.add_message_Item(item['message'], item['author'])
 
     def send_function(self):
         if self.friend_id is not None:
@@ -118,26 +125,38 @@ class MenuPage(QDialog):
             self.send_message('ADD_FRIEND', friend)
             self.send_message('FRIENDS_LIST', '')
 
+    def add_message_Item(self, message, author):
+        item = QtWidgets.QListWidgetItem(author+"\n"+message+"\n")
+        if(author == "Me"):
+            item.setTextAlignment(QtCore.Qt.AlignRight)
+        self.chatListWidget.addItem(item)
+
     def handleListFriends(self, message):
-        friend_list = string_to_list(GLOBAL_MSG)
+        self.friend_list = string_to_list(message)
         self.friendListWidget.clear()
-        for i in friend_list:
+        for i in self.friend_list:
             self.friendListWidget.addItem(f'{i[2]}->{i[1]} {i[0]}')
             if i[0] not in self.messagesDictionary:
                 self.messagesDictionary[i[0]] = []
+        # if len(self.friend_list)==1:
+        #     self.friendListWidget.setCurrentItem(self.friendListWidget.item(0))
+        #     self.friend_id = self.friendListWidget.currentItem().text().split()[-1]
 
     def handleSendMsg(self):
         self.messagesDictionary[self.friend_id].append({"message": self.chat_line.text(), "author": "Me"})
-        self.verticalLayout_2.addWidget(MessageWidget(self.chat_line.text(), "Me"))
+        self.add_message_Item(self.chat_line.text(), "Me")
         print(self.messagesDictionary)
 
     def handleRcvMsg(self, message):
+        print(message)
         message = message.split()
         id_, message = message[0], ' '.join(message[1:])
+        print(self.friend_list)
         friend_nick = find_nick(self.friend_list, id_)
         self.messagesDictionary[id_].append({"message": message, "author": friend_nick})
+        print(id_, friend_nick)
         if id_ == self.friend_id:
-            self.verticalLayout_2.addWidget(MessageWidget(message, friend_nick))
+            self.add_message_Item(message, friend_nick)
 
 NO_HEADER_NO_MESSAGE = 1
 HEADER = 2
@@ -147,78 +166,6 @@ GLOBAL_HEADER = ''
 GLOBAL_MSG = ''
 CHAT_DICT = {}
 
-
-"""
-def interpret_message():
-    global GLOBAL_HEADER
-    global GLOBAL_MSG
-    print("Odczytaned:", GLOBAL_HEADER, GLOBAL_MSG)
-    # Sign Up
-    if GLOBAL_HEADER == 'SIGNUP_R SUCCESS':
-        mainWindow.registration_page.error.setText('')
-        mainWindow.widget.setCurrentIndex(0)
-    elif GLOBAL_HEADER == 'SIGNUP_R FAILED' and GLOBAL_MSG == 'USERNAME_TAKEN':
-        mainWindow.registration_page.error.setText('Username taken!')
-    elif GLOBAL_HEADER == 'SIGNUP_R FAILED' and GLOBAL_MSG == 'LIST_IS_FULL':
-        mainWindow.registration_page.error.setText('Our server is full!')
-    elif GLOBAL_HEADER == 'SIGNUP_R SUCCESS':
-        mainWindow.widget.setCurrentIndex(0)
-    # Login
-    elif GLOBAL_HEADER == 'LOGIN_R SUCCESS':
-        mainWindow.login_page.error.setText('')
-        # send_message('FRIENDS_LIST', '')
-        mainWindow.widget.setCurrentIndex(3)
-    elif GLOBAL_HEADER == 'LOGIN_R FAILED' and GLOBAL_MSG == 'ALREADY_LOGGED':
-        mainWindow.registration_page.error.setText('This user is already logged in!')
-    elif GLOBAL_HEADER == 'LOGIN_R FAILED' and (GLOBAL_MSG in ['WRONG_USER_OR_PASSWORD', 'NO_SUCH_USER']):
-        mainWindow.registration_page.error.setText('Wrong user or password!')
-    # Add Friend
-    elif GLOBAL_HEADER == 'ADD_FRIEND_R SUCCESS':
-        pass
-    elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'ALREADY_FRIENDS':
-        mainWindow.registration_page.error.setText('You are already friends<3!')
-    elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'NO_SUCH_USER':
-        mainWindow.registration_page.error.setText('This user doesn\'t exist!')
-    # Remove Friend
-    # TODO: remove Friend
-    # Friend List
-    elif GLOBAL_HEADER == 'FRIENDS_LIST_R SUCCESS':
-        mainWindow.menu_page.handleListFriends(GLOBAL_MSG)
-    # Send message
-    elif GLOBAL_HEADER == 'SEND_MESSAGE_R SUCCESS':
-        mainWindow.menu_page.handleSendMsg()
-    # Get message
-    elif GLOBAL_HEADER == 'GET_MESSAGE_R SUCCESS':
-        mainWindow.menu_page.handleRcvMsg()
-    # Add friend
-    elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'NO_SUCH_USER':
-        mainWindow.registration_page.error.setText('This user doesn\'t exist!')
-
-
-def parser(znak):
-    global GLOBAL_STATE
-    global GLOBAL_MSG
-    global GLOBAL_HEADER
-
-    if GLOBAL_STATE == NO_HEADER_NO_MESSAGE:
-        if znak == '\t':
-            GLOBAL_STATE = HEADER
-            return
-
-    elif GLOBAL_STATE == HEADER:
-        if znak == '\t':
-            GLOBAL_STATE = MESSAGE
-            return
-        GLOBAL_HEADER += znak
-
-    elif GLOBAL_STATE == MESSAGE:
-        if znak == '\t':
-            interpret_message()
-            GLOBAL_STATE = NO_HEADER_NO_MESSAGE
-            GLOBAL_MSG = ""
-            GLOBAL_HEADER = ""
-        GLOBAL_MSG += znak
-"""
 
 
 class Receiver(Thread):
@@ -304,11 +251,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.registration_page.error.setText('Wrong user or password!')
         # Add Friend
         elif GLOBAL_HEADER == 'ADD_FRIEND_R SUCCESS':
-            pass
+            self.menu_page.error.setText('')
+            self.send_message('FRIENDS_LIST', '')
         elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'ALREADY_FRIENDS':
-            self.registration_page.error.setText('You are already friends<3!')
+            self.menu_page.error.setText('You are already friends<3!')
         elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'NO_SUCH_USER':
-            self.registration_page.error.setText('This user doesn\'t exist!')
+            self.menu_page.error.setText('This user doesn\'t exist!')
         # Remove Friend
         # TODO: remove Friend
         # Friend List
@@ -319,7 +267,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.menu_page.handleSendMsg()
         # Get message
         elif GLOBAL_HEADER == 'GET_MESSAGE_R SUCCESS':
-            self.menu_page.handleRcvMsg()
+            self.menu_page.handleRcvMsg(GLOBAL_MSG)
         # Add friend
         elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'NO_SUCH_USER':
             self.registration_page.error.setText('This user doesn\'t exist!')
