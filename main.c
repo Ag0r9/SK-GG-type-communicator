@@ -309,31 +309,36 @@ bzero(s, 10);
 
 // SEND MESSAGE:
 // operation: "SEND_MESSAGE"
-// message:   "user_id content of the message goes here"
+// message:   "receiver_user_id content of the message goes here"
 
 if (!strcmp(operation, "SEND_MESSAGE")) {
   printf("WYSYLANKO");
-  int client_id = -1;
+  int author_id = -1;
+  int receiver_id = -1;
   char id_text[3];
+  char id_text2[3];
   bzero(id_text, 3);
-  char text[1020];
-  bzero(text, 1020);
+  bzero(id_text2, 3);
+  char text[1024];
+  bzero(text, 1024);
   pthread_mutex_lock(&users_lock);
-  client_id = find_id(response_socket);
+  author_id = find_id(response_socket);
+  itoa(author_id, id_text);
   for (int i=0; i<strlen(message); ++i) {
       if (message[i]==32) {
-        strncpy(id_text, message, i);
-        client_id = atoi(id_text);
-        strcpy(text, message + i);
+        strncpy(id_text2, message, i);
+        receiver_id = atoi(id_text2);
+        strcpy(text, id_text);
+        strcpy(text, message + i + 1);
         break;
       }
   }
-  pthread_mutex_lock(&Users[client_id].write_socket_lock);
+  pthread_mutex_lock(&Users[author_id].write_socket_lock);
   send_message("SEND_MESSAGE_R SUCCESS", "SUCCESS", response_socket);
-  pthread_mutex_unlock(&Users[client_id].write_socket_lock);
-  pthread_mutex_lock(&Users[Users[client_id].socket].write_socket_lock);
-  send_message("GET_MESSAGE_R SUCCESS", text, Users[client_id].socket);
-  pthread_mutex_unlock(&Users[Users[client_id].socket].write_socket_lock);
+  pthread_mutex_unlock(&Users[author_id].write_socket_lock);
+  pthread_mutex_lock(&Users[receiver_id].write_socket_lock);
+  send_message("GET_MESSAGE_R SUCCESS", text, Users[receiver_id].socket);
+  pthread_mutex_unlock(&Users[receiver_id].write_socket_lock);
   pthread_mutex_unlock(&users_lock);
   return;
 }
