@@ -329,7 +329,7 @@ if (!strcmp(operation, "SEND_MESSAGE")) {
         strncpy(id_text2, message, i);
         receiver_id = atoi(id_text2);
         strcpy(text, id_text);
-        strcpy(text, message + i + 1);
+        strcat(text, message + i);
         break;
       }
   }
