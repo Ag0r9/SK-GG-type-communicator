@@ -86,8 +86,8 @@
      <rect>
       <x>820</x>
       <y>710</y>
-      <width>261</width>
-      <height>31</height>
+      <width>211</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
@@ -110,6 +110,19 @@
       <width>521</width>
       <height>61</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="remove_friend_button">
+    <property name="geometry">
+     <rect>
+      <x>1050</x>
+      <y>710</y>
+      <width>101</width>
+      <height>60</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Remove</string>
     </property>
    </widget>
   </widget>
