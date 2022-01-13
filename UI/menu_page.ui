@@ -51,7 +51,7 @@
    <widget class="QPushButton" name="add_friend_button">
     <property name="geometry">
      <rect>
-      <x>990</x>
+      <x>1000</x>
       <y>600</y>
       <width>160</width>
       <height>31</height>
@@ -66,7 +66,7 @@
      <rect>
       <x>820</x>
       <y>640</y>
-      <width>331</width>
+      <width>340</width>
       <height>61</height>
      </rect>
     </property>
