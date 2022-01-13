@@ -166,7 +166,6 @@ GLOBAL_MSG = ''
 CHAT_DICT = {}
 
 
-
 class Receiver(Thread):
     def __init__(self, gniazdo, parser):
         Thread.__init__(self)
@@ -302,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    mainWindow = MainWindow(host=sys.argv[1])
+    mainWindow = MainWindow(host=sys.argv[1], port=int(sys.argv[2]))
     app.aboutToQuit.connect(mainWindow.my_exit_handler)
 
     try:
