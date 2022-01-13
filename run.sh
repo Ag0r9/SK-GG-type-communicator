@@ -5,4 +5,4 @@ if [ "$1" == "debug" ]; then
   exit
 fi
 echo "Startowanie serwera..."
-./serwer
+./serwer 8021

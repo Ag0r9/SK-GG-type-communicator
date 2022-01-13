@@ -423,7 +423,7 @@ void* handle_connection(void *arg) {
 
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
   int fd = socket(AF_INET, SOCK_STREAM, 0); // Main file descriptor of the socket
 
@@ -440,7 +440,7 @@ int main() {
   memset(&server_addr, 0, sizeof(server_addr));
 
   server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(8021); // PORT on which server is running
+  server_addr.sin_port = htons(argv[1]); // PORT on which server is running
   server_addr.sin_addr.s_addr = INADDR_ANY;
   
   if (bind(fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {

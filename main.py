@@ -1,6 +1,5 @@
 import sys
 import socket
-import threading
 from threading import Thread
 
 from PyQt5.uic import loadUi
@@ -58,6 +57,7 @@ class MessageWidget(QtWidgets.QWidget):
         self.msgLayout.addWidget(self.msgContent)
         self.setLayout(self.msgLayout)
 
+
 class RegistrationPage(QDialog):
     def __init__(self, send_message):
         super(RegistrationPage, self).__init__()
@@ -114,8 +114,8 @@ class MenuPage(QDialog):
 
     def remove_friend_function(self):
         if self.friend_id is not None:
-            self.send_message('REMOVE_FRIEND', self.friend_id)
-            self.send_message('FRIENDS_LIST', '')
+            friend_nick = find_nick(self.friend_list, self.friend_id)
+            self.send_message('REMOVE_FRIEND', friend_nick)
 
     def add_friend_function(self):
         friend = self.nick_input.text()
@@ -123,7 +123,6 @@ class MenuPage(QDialog):
             self.error.setText('Write correct username!')
         else:
             self.send_message('ADD_FRIEND', friend)
-            self.send_message('FRIENDS_LIST', '')
 
     def add_message_Item(self, message, author):
         item = QtWidgets.QListWidgetItem(author+"\n"+message+"\n")
@@ -183,11 +182,11 @@ class Receiver(Thread):
             self.parser(buf.decode('ascii')[0])
 
 class MainWindow(QtWidgets.QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, host, port, parent=None):
         super(MainWindow, self).__init__(parent)
 
         self.gniazdo = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.gniazdo.connect(("localhost", 8021))
+        self.gniazdo.connect((host, port))
 
         self.reciver = Receiver(self.gniazdo, self.parser)
         self.reciver.start()
@@ -258,7 +257,11 @@ class MainWindow(QtWidgets.QMainWindow):
         elif GLOBAL_HEADER == 'ADD_FRIEND_R FAILED' and GLOBAL_MSG == 'NO_SUCH_USER':
             self.menu_page.error.setText('This user doesn\'t exist!')
         # Remove Friend
-        # TODO: remove Friend
+        elif GLOBAL_HEADER == 'REMOVE_FRIEND_R SUCCESS':
+            self.send_message('FRIENDS_LIST', '')
+            self.menu_page.error.setText('')
+        elif GLOBAL_HEADER == 'REMOVE_FRIEND_R FAILED':
+            self.menu_page.error.setText('His not you friend :`(')
         # Friend List
         elif GLOBAL_HEADER == 'FRIENDS_LIST_R SUCCESS':
             self.menu_page.handleListFriends(GLOBAL_MSG)
@@ -299,7 +302,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
-    mainWindow = MainWindow()
+    mainWindow = MainWindow(host=sys.argv[1])
     app.aboutToQuit.connect(mainWindow.my_exit_handler)
 
     try:
