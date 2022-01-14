@@ -72,5 +72,5 @@ Klient oparty jest na dwóch plikach:
 ### Opis interfejsu graficznego:
 Program pobiera cztery strony z czterech plików: login_page.ui, menu_page.ui, signup_page.ui, welcome_page.ui
 ### Serwer:
-Cały serwer znajduję się w pliku main.c
+Cały serwer znajduję się w pliku main.c. Opisy strutkur znajdują się na struct.h
 
